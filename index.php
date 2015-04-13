@@ -4,6 +4,8 @@
 </head>
 <?php
 
+##To fix: picking up "PDT" in last date function.  Change explode paramenters.
+
 function createTableName($ipAddr){
    $tableName = str_replace(".","_",$ipAddr);
    $tableName = "ip_" . $tableName;
@@ -28,8 +30,11 @@ function dropAll(){
 
 function hackerHistoryEntry($ipaddr){
    exec('python web.py ' . $ipaddr,$parts); 
-   $hackHistoryEntryQuery = "insert into hackerHistory values('" . $ipaddr . "','" . $parts[0] . "','"  . $parts[1] . "','" . 
-      $parts[2] . "','" . $parts[3] . "','" . $parts[4] . "','" . $parts[5] . "','" . $parts[6] . "')";
+   $hackHistoryEntryQuery = "insert into hackerHistory values('" . $ipaddr . "','" . 
+      $parts[0] .   "','"  . $parts[1] . "','" . 
+      $parts[2] . "','" . $parts[3] . "','" . 
+      $parts[4] . "','" . $parts[5] . "','" . 
+      $parts[6] . "')";
    mysql_query($hackHistoryEntryQuery);
    #0 - IPAddress ,#1 - ISP, #2 - Hostname, #3 - Organization, $4 = Country, #5 - Region, #6 - City
 }
@@ -58,12 +63,12 @@ function getLogYear(){
       exec('ls -l auth.log',$lsDashL);
       exec('date',$dateLine);
       $lsParts = explode(' ',$lsDashL[0],10); #want 8 from'-rwxrwxrwx 1 mikebike mikebike 7095724 Mar 24 18:50 auth.log'
-      $dateParts = explode(' ',$dateLine[0],6); # want 5 from 'Mon Mar 30 20:47:41 PDT 2015'
-      $ltYearOld = strrpos($lsParts[7],":");  #Is there a colon in the date field?  if not, its a year
+      $dateParts = explode(' ',$dateLine[0],7); # want 5 from 'Mon Mar 30 20:47:41 PDT 2015'
+      $ltYearOld = strrpos($lsParts[8],":");  #Is there a colon in the date field?  if not, its a year
       if($ltYearOld==False){
          return $lsParts[8];}
       else{
-         return $dateParts[5];} 
+         return $dateParts[5];}
 }
 
 function setLastTimeStamp($lastTimeStamp){
@@ -87,11 +92,11 @@ function compareTimeStamps($lastStamp,$testStamp){
    return $newRecord;
 }   
 
-print("<table>");
-print("<TR><TD COLSPAN=2 VALIGN='CENTER'><IMG SRC='./images/fbheader.jpg'>");
-print("<TR><TD VALIGN='TOP' BGCOLOR='#CCCCC' WIDTH=120>");
 include("./dblib.inc");
 dbconnect();
+print("<table>");
+print("<TR><TD COLSPAN=2 VALIGN='CENTER'><IMG SRC='./images/fbheader.jpg'>");
+print("<TR><TD VALIGN='TOP' BGCOLOR='#CCCCC' WIDTH=80>");
 #dropAll();
 sidebar();
 $logYear=getLogYear();
@@ -104,10 +109,8 @@ print("<td WIDTH=450 VALIGN='TOP'><fronthead>Recent Hackers Visiting 66.125.83.2
 print("<paratext>");
 if($fileHandle){
     while (($line = fgets($fileHandle)) !== false) {
-      $ignoreLine = false;
       $parts = explode(' ',$line,6); //0-2 Date,3-server,4 daemon, 5 description
       $hackDate = $parts[0].' '.$parts[1].' '.$parts[2];
-      if($line == 'happyhappy'){$ignoreLine = true;}
       $hackProcess = $parts[4];
       $hackDescription = $parts[5];
       $ipRegEx = "/\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b/";
@@ -157,20 +160,25 @@ while($hackerListLine=mysql_fetch_row($hackerListResult)){
    $ipaddr = createIP($tableName);
    $flagAndCountryQuery = "SELECT hostCountry,flag FROM hackerHistory WHERE ipaddress = '" . $ipaddr . "'";
    $flagAndCountryResult = mysql_query($flagAndCountryQuery);
-   $flagAndCountryLine = mysql_fetch_row($flagAndCountryResult);
-   print("<TR><TD><paratext>");
-   #print(createIP($tableName));
-   print("<A HREF=http://192.168.1.237/loglook/ipInfo.php?tableName=" . $tableName . "&flagFile=" . $flagAndCountryLine[1] . ">" . $ipaddr . "</A>");
+   $flagAndCountryLine = mysql_fetch_row($flagAndCountryResult); 
    $hacksPerHackerQuery="SELECT COUNT(*) FROM " . $tableName;
    $hacksPerHackerResult=mysql_query("SELECT COUNT(*) FROM " . $tableName);
    $hacksPerHackerLine=mysql_fetch_row($hacksPerHackerResult);
+   print("<TR><TD><paratext>");
+   print("<A HREF=http://192.168.1.237/logtool/ipInfo.php?tableName=" . $tableName 
+      . "&flagFile=" . $flagAndCountryLine[1] 
+      . ">" . $ipaddr . "</A>");
    print("<TD><paratext>");
-   print($hacksPerHackerLine[0]);
+   #print($hacksPerHackerLine[0]);
+   print("<A HREF=http://192.168.1.237/logtool/ipList.php?tableName=" . $tableName 
+      . "&flagFile=" . $flagAndCountryLine[1] 
+      . ">" .$hacksPerHackerLine[0] . "</A>");
    print("<TD><IMG SRC = './flags/" . $flagAndCountryLine[1] . "'> ");
    print("<paratext>" . $flagAndCountryLine[0]);
    print("</paratext><BR>");
 }
 print"</paratext></TABLE>";
+#dropAll();
 footer();
 ?>
 </HTML>

@@ -22,9 +22,9 @@ pageurl = baseurl + ipaddr
 siteSource = urllib.urlopen(pageurl)
 ip_line = 'preload'
 ipLine = 'preload'
+regionFound = False;
+flagFound = False;
 while ipLine:
-   regionFound = False;
-   flagFound = False;
    ipLine = siteSource.readline()
    if "ISP:" in ipLine:
       ipLine = siteSource.readline()
@@ -63,7 +63,7 @@ print taggedHostName
 print taggedOrganization
 print taggedCountry
 if(regionFound == True):
-   print taggedRegion
+   print taggedRegion 
 else:
    print "N/A"
 print taggedCity
