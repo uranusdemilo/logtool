@@ -165,9 +165,10 @@ while($hackerListLine=mysql_fetch_row($hackerListResult)){
    $hacksPerHackerResult=mysql_query("SELECT COUNT(*) FROM " . $tableName);
    $hacksPerHackerLine=mysql_fetch_row($hacksPerHackerResult);
    print("<TR><TD><paratext>");
-   print("<A HREF=http://192.168.1.237/logtool/ipInfo.php?tableName=" . $tableName 
-      . "&flagFile=" . $flagAndCountryLine[1] 
-      . ">" . $ipaddr . "</A>");
+   #print("<A HREF=http://192.168.1.237/logtool/ipInfo.php?tableName=" . $tableName 
+   #   . "&flagFile=" . $flagAndCountryLine[1] 
+   #   . ">" . $ipaddr . "</A>");
+   print("<a href=\"javascript:void(window.open('./ipInfo.php?ip=" . $ipaddr . "','','width=600,height=350'))\"> $ipaddr </a>");
    print("<TD><paratext>");
    #print($hacksPerHackerLine[0]);
    print("<A HREF=http://192.168.1.237/logtool/ipList.php?tableName=" . $tableName 
